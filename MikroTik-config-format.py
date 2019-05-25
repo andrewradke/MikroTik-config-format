@@ -10,6 +10,7 @@ import getpass
 
 import argparse
 parser = argparse.ArgumentParser()
+parser.add_argument('-s', '--strip',				help='Strip date and time from output. Improves handling by version control systems.')
 parser.add_argument('-t', '--timeout',				help='SSH timeout in seconds, default: 10')
 parser.add_argument('-u', '--username',				help='Username for access to RouterOS, default: local username')
 parser.add_argument('-b', '--baseurl',				help='Base URL for retrieving RouterOS images if needed, default: https://download.mikrotik.com/routeros/')
@@ -39,6 +40,11 @@ if args.username:
 else:
 	username = getpass.getuser()
 
+if args.strip:
+	strip = args.strip
+else:
+	strip = False
+
 if args.timeout:
 	timeout = args.timeout
 else:
@@ -58,6 +64,7 @@ if args.verbose:
 	print("Verbose level {}".format(args.verbose))
 	print("Username: '{}'".format(username))
 	print("Timeout: {} seconds".format(timeout))
+	print("Strip date and time: {}".format(strip))
 	if args.noop:
 		print("Dry run only. NOT performing any actions.")
 
@@ -73,14 +80,23 @@ for hostname in args.hosts:
 			print(bcolors.BOLD + bcolors.UNDERLINE, end='')
 		print("*** {} ***".format(hostname), end='')
 		if sys.stdout.isatty():
-			print(bcolors.ENDC)
+			print(bcolors.ENDC, end='')
+		print()
 
 	prev_line = ''
 	get_next_line = False
+	if strip is True:
+		first_line = True
+	else:
+		first_line = False
 
 	fp = open(hostname, "r")
 	line = fp.readline().strip("\r\n")
 	while line:
+		# If we are on the first line then strip the date and time out but leave the RouterOS version
+		if first_line is True:
+			line = re.sub('^# .* by ', '# by ', line)
+			first_line = False
 		# If the last line ended in a '\' then this one is a continuation
 		# Otherwise use just the lineon it's own
 		if get_next_line is True:
