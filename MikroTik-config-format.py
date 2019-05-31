@@ -125,11 +125,11 @@ for hostname in args.hosts:
 			else:
 				this_line = ''
 				for x in range(len(line)):
-					if line[x] is '[':
+					if line[x] is '[' and in_quotes is False:
 						in_brackets = True
-					elif line[x] is ']':
+					elif line[x] is ']' and in_quotes is False:
 						in_brackets = False
-					elif line[x] is '"':
+					elif line[x] is '"' and line[x-1] is not '\\':
 						if in_quotes is False:
 							in_quotes = True
 						else:
