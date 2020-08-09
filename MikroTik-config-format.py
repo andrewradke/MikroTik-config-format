@@ -119,25 +119,25 @@ for hostname in args.hosts:
 			if m:
 				skip_space = True
 
-			if line[0] is "/" or line[0] is "#":
+			if line[0] == "/" or line[0] == "#":
 				# Keep these lines as is
 				output += line + "\n"
 			else:
 				this_line = ''
 				for x in range(len(line)):
-					if line[x] is '[' and in_quotes is False:
+					if line[x] == '[' and in_quotes is False:
 						in_brackets = True
-					elif line[x] is ']' and in_quotes is False:
+					elif line[x] == ']' and in_quotes is False:
 						in_brackets = False
-					elif line[x] is '"' and line[x-1] is not '\\':
+					elif line[x] == '"' and line[x-1] != '\\':
 						if in_quotes is False:
 							in_quotes = True
 						else:
 							in_quotes = False
-					elif line[x] is ' ' and skip_space is True:
+					elif line[x] == ' ' and skip_space is True:
 						# Leave this on the same line as the "set" statement
 						skip_space = False
-					elif line[x] is ' ' and in_quotes is False and in_brackets is False:
+					elif line[x] == ' ' and in_quotes is False and in_brackets is False:
 						# Only put three spaces at the beginning of the next line as we'll print the existing space after that
 						this_line += " \\\n   "
 					# add this character now
